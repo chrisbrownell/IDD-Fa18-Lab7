@@ -108,7 +108,16 @@ Finally I was able to reset the password for the pi user. Using the android tabl
 
 First I started by trying to use fswebcam to change the colors to greyscale, which worked, but I couldn't use the same approach to invert colors... so I decided to use jimp.
 
+Fswebcam color:
+![pic](https://github.com/chrisbrownell/IDD-Fa18-Lab7/blob/master/fswebcamcolor.png)
+
+Fswebcam greyscale:
+![pic](https://github.com/chrisbrownell/IDD-Fa18-Lab7/blob/master/fswebcamgreyscale.png)
+
 Using jimp, I created a 4-box picture, including one standard image, one inverted, one pixelated (and slightly brighter) and one blurry (and slightly brighter).
+
+Jimp 4-box:
+![pic](https://github.com/chrisbrownell/IDD-Fa18-Lab7/blob/master/jimpfinal.png)
 
 **b. Upload a video of your working modified project**
 
