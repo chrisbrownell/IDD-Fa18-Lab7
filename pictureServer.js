@@ -26,8 +26,10 @@ var io = require('socket.io')(http); // connect websocket library to server
 var serverPort = 8000;
 var SerialPort = require('serialport'); // serial library
 var Readline = SerialPort.parsers.Readline; // read serial data as lines
-//-- Addition:
 var NodeWebcam = require( "node-webcam" );// load the webcam module
+//var FSWebcam = NodeWebcam.FSWebcam;
+var Jimp = require('jimp');
+
 
 //---------------------- WEBAPP SERVER SETUP ---------------------------------//
 // use express to create the simple webapp
@@ -69,9 +71,10 @@ var opts = { //These Options define how the webcam is operated.
     // Webcam.CallbackReturnTypes
     callbackReturn: "location",
     //Logging
-    verbose: false
+    verbose: false,
 };
 var Webcam = NodeWebcam.create( opts ); //starting up the webcam
+//var Webcam = FSWebcam.create( opts );
 //----------------------------------------------------------------------------//
 
 
@@ -117,15 +120,60 @@ io.on('connect', function(socket) {
     /// This way we can use it as the filename.
     var imageName = new Date().toString().replace(/[&\/\\#,+()$~%.'":*?<>{}\s-]/g, '');
 
-    console.log('making a making a picture at'+ imageName); // Second, the name is logged to the console.
+     // Second, the name is logged to the console.
 
     //Third, the picture is  taken and saved to the `public/`` folder
-    NodeWebcam.capture('public/'+imageName, opts, function( err, data ) {
-    io.emit('newPicture',(imageName+'.jpg')); ///Lastly, the new name is send to the client web browser.
+    //NodeWebcam.capture('public/'+imageName, opts, function( err, data ) {
+    //FSWebcam.capture('public/'+imageName, opts, function( err, data ) {
+    Webcam.capture('public/'+imageName+'.jpg', function( err, data ){
+      //console.log('making a making a picture at'+ imageName);
+    //io.emit('newPicture',(imageName)); ///Lastly, the new name is send to the client web browser.
     /// The browser will take this new name and load the picture from the public folder.
-  });
+    // Resize 1st image
+    Jimp.read('public/'+imageName+'.jpg', (err, orig) => {
+    if (err) throw err;
+    orig
+      .resize(400, 400) // resize
+      .write('public/'+imageName+'1.jpg'); // save
+    console.log('making '+ imageName +'1');
+    });
+
+    // Invert 2nd image
+    Jimp.read('public/'+imageName+'.jpg', (err, orig) => {
+    if (err) throw err;
+    orig
+      .resize(400, 400) // resize
+      .invert() // invert colors
+      .write('public/'+imageName+'2.jpg'); // save
+    console.log('making '+ imageName +'2');
+    });
+
+    // Mask 3rd image
+    Jimp.read('public/'+imageName+'.jpg', (err, orig) => {
+    if (err) throw err;
+    orig
+      .resize(400, 400) // resize
+      .pixelate(10) // invert colors
+      .brightness(0.2)
+      .write('public/'+imageName+'3.jpg'); // save
+    console.log('making '+ imageName +'3');
+    });
+
+    // Mask 4th image
+    Jimp.read('public/'+imageName+'.jpg', (err, orig) => {
+    if (err) throw err;
+    orig
+      .resize(400, 400) // resize
+      .blur(4) // invert colors
+      .brightness(0.2)
+      .write('public/'+imageName+'4.jpg'); // save
+    console.log('making '+ imageName +'4');
+    });
+    io.emit('newPicture',(imageName)); ///Lastly, the new name is send to the client web browser.
+    });
 
   });
+
   // if you get the 'disconnect' message, say the user disconnected
   socket.on('disconnect', function() {
     console.log('user disconnected');
